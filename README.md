@@ -412,11 +412,11 @@ Daemon Status:
 
 ### Отображение дашборда Prometheus Stats в Grafana :
 
-[<img src="images/grafana_prometeus stats.jpg" width="600">](grafana_prometeus stats.jpg)
+<img src="images/grafana_prometeus stats.jpg" width="600">
 
 ### Отображение дашборда Node Exporter в Grafana :
 
-[<img src="images/grafana_node exporter full.jpg" width="600">](grafana_node exporter full.jpg)
+<img src="images/grafana_node exporter full.jpg" width="600">
 
 ### На узлах кластера веб-приложения настроены разные зоны firewalld:
 
