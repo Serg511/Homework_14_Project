@@ -406,6 +406,10 @@ Daemon Status:
 
 [<img src="images/nginx_logs.jpg" width="600">](nginx_logs.jpg)
 
+### Отображение логов WordPress в Kibana:
+
+[<img src="images/wordpress_logs.jpg" width="600">](wordpress_logs.jpg)
+
 ### Отображение статуса систем с метриками в Prometheus:
 
 [<img src="images/prometheus.jpg" width="600">](prometheus.jpg)
