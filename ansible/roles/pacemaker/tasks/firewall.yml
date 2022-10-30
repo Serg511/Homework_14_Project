@@ -1,0 +1,187 @@
+- name: Install Firewalld
+  yum: 
+    name: firewalld 
+    state: present
+
+- name: Firewalld service state
+  systemd: 
+    name: firewalld 
+    state: restarted 
+    enabled: yes
+
+- name: Firewalld add ha-limited zone
+  firewalld:
+    zone: ha-limited
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add trusted ip to ha-limited zone
+  firewalld:
+    source: "{{ hostvars[ groups['web_servers'][0] ].internal_ip }}"
+    zone: ha-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Firewalld add trusted ip to ha-limited zone
+  firewalld:
+    source: "{{ hostvars[ groups['web_servers'][1] ].internal_ip }}"
+    zone: ha-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Firewalld add trusted ip to ha-limited zone
+  firewalld:
+    source: "{{ hostvars[ groups['web_servers'][2] ].internal_ip }}"
+    zone: ha-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Firewalld activate ha-limited service
+  firewalld:
+    zone: ha-limited
+    service: high-availability
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Restart firewalld
+  systemd:
+    name: dbus
+    state: restarted
+
+- name: Restart dbus
+  systemd:
+    name: firewalld
+    state: restarted
+
+- name: Firewalld add web zone
+  firewalld:
+    zone: web
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add trusted ip to web zone
+  firewalld:
+    source: "{{ hostvars[ groups['load_balancer_servers'][0] ].internal_ip }}"
+    zone: web
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Firewalld add trusted ip to web zone
+  firewalld:
+    source: "{{ hostvars[ groups['load_balancer_servers'][1] ].internal_ip }}"
+    zone: web
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Firewalld activate http service
+  firewalld:
+    service: http
+    zone: web
+    permanent: true
+    state: enabled
+
+- name: Firewalld activate https service
+  firewalld:
+    service: https
+    zone: web
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld deactivate dhcpv6-client service
+  firewalld:
+    service: dhcpv6-client
+    permanent: true
+    state: disabled
+
+- name: Firewalld add ssh-limited zone
+  firewalld:
+    zone: ssh-limited
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add trusted ip to ssh-limited zone
+  firewalld:
+    source: "{{ ip }}"
+    zone: ssh-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: firewalld activate ssh service
+  firewalld:
+    service: ssh
+    zone: ssh-limited
+    permanent: true
+    state: enabled
+
+- name: Firewalld deactivate ssh service
+  firewalld:
+    service: ssh
+    permanent: true
+    state: disabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add ne-limited zone
+  firewalld:
+    zone: ne-limited
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add trusted ip to ne-limited zone
+  firewalld:
+    source: "{{ hostvars[ groups['prometheus'][0] ].internal_ip }}"
+    zone: ne-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Permit traffic in zone ne-limited on port 9100/tcp
+  firewalld:
+    port: 9100/tcp
+    zone: ne-limited
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded

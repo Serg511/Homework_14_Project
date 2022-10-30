@@ -1,0 +1,80 @@
+---
+- name: Set hostname and Configure hosts file
+  hosts: all
+  become: true
+  roles:
+    - configure_hosts
+
+- name: Install and configure load balancer servers
+  hosts: load_balancer_servers
+  become: true
+  roles:
+    - load_balancer
+
+- name: Install and configure mysql server
+  hosts: db_server
+  become: true
+  roles:
+    - mysql
+
+- name: Install and configure iscsi-target
+  become: true
+  hosts: iscsi
+  roles:
+    - iscsi-target
+
+- name: Install and configure iscsi-clients
+  hosts: web_servers
+  become: true
+  roles:
+    - pacemaker
+    - iscsi-client
+
+- name: Configure GFS2
+  become: true
+  hosts: web-0
+  roles:
+    - config_gfs2
+
+- name: Install and configure web servers
+  become: true
+  hosts: web_servers
+  roles:
+    - web
+
+- name: Install WordPress and tune cluster
+  become: true
+  hosts: web-0
+  roles:
+    - wp
+    - tune_cluster
+
+- name: Install and configure Filebeat
+  become: true
+  hosts: web_servers
+  roles:
+    - filebeat
+
+- name: Install and configure Kafka
+  become: true
+  hosts: kafka
+  roles:
+    - kafka
+
+- name: Install and configure ELK
+  become: true
+  hosts: elk
+  roles:
+    - elk
+
+- name: Install and configure Prometheus + Grafana
+  become: true
+  hosts: prometheus
+  roles:
+    - prometheus
+
+- name: Install and configure node_exporter
+  become: true
+  hosts: web_servers
+  roles:
+    - node_exporter

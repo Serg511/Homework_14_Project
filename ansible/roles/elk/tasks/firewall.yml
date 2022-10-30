@@ -1,0 +1,101 @@
+- name: Install Firewalld
+  yum: 
+    name: firewalld 
+    state: present
+
+- name: Firewalld service state
+  systemd: 
+    name: firewalld 
+    state: restarted 
+    enabled: yes
+
+- name: Restart firewalld
+  systemd:
+    name: dbus
+    state: restarted
+
+- name: Restart dbus
+  systemd:
+    name: firewalld
+    state: restarted
+
+- name: Firewalld deactivate dhcpv6-client service
+  firewalld:
+    service: dhcpv6-client
+    permanent: true
+    state: disabled
+
+- name: Firewalld add ssh-limited zone
+  firewalld:
+    zone: ssh-limited
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add trusted ip to ssh-limited zone
+  firewalld:
+    source: "{{ ip }}"
+    zone: ssh-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: firewalld activate ssh service
+  firewalld:
+    service: ssh
+    zone: ssh-limited
+    permanent: true
+    state: enabled
+
+- name: Firewalld deactivate ssh service
+  firewalld:
+    service: ssh
+    permanent: true
+    state: disabled
+
+- name: Permit traffic in zone ssh-limited on port 5601/tcp
+  firewalld:
+    port: 5601/tcp
+    zone: ssh-limited
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add kibana-limited zone
+  firewalld:
+    zone: kibana-limited
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add trusted ip to kibana-limited zone
+  firewalld:
+    source: "{{ ip }}"
+    zone: kibana-limited
+    state: enabled
+    permanent: true
+    # immediate: true
+
+- name: Permit traffic in zone kibana-limited on port 5601/tcp
+  firewalld:
+    port: 5601/tcp
+    zone: kibana-limited
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded

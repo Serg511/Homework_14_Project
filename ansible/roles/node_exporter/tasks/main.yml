@@ -1,0 +1,42 @@
+- name: Create prometheus-exporter user
+  ansible.builtin.user:
+    name: prometheus-exporter
+    create_home: no
+    shell: /bin/false
+
+- name: Copy node-exporter to server
+  copy:
+    src: node_exporter-1.4.0.linux-amd64.tar.gz
+    dest: /tmp/node_exporter-1.4.0.linux-amd64.tar.gz
+
+- name: Copy setup.sh to server
+  copy:
+    src: setup.sh
+    dest: /tmp/setup.sh
+    mode: 777
+
+- name: Unzip node-exporter
+  unarchive:
+    src: /tmp/node_exporter-1.4.0.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+
+- name: Setup node-exporter
+  ansible.builtin.shell: 
+    cmd: /tmp/setup.sh
+    chdir: /tmp
+
+- name: Setup Node Exporter service
+  ansible.builtin.copy:
+    src: node_exporter.service
+    dest: /etc/systemd/system/node_exporter.service
+
+- name: Reload systemctl
+  ansible.builtin.shell: systemctl daemon-reload
+
+- name: Start Node Exporter
+  ansible.builtin.service:
+    name: node_exporter
+    state: started
+    enabled: yes

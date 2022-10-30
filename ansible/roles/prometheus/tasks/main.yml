@@ -1,0 +1,61 @@
+- name: Create prometheus user
+  ansible.builtin.user:
+    name: prometheus
+    create_home: no
+    shell: /bin/false
+
+- name: Copy prometheus to server
+  copy:
+    src: prometheus-2.39.1.linux-amd64.tar.gz
+    dest: /tmp/prometheus-2.39.1.linux-amd64.tar.gz
+
+- name: Copy setup.sh to server
+  copy:
+    src: setup.sh
+    dest: /tmp/setup.sh
+    mode: 777
+
+- name: Unzip prometheus
+  unarchive:
+    src: /tmp/prometheus-2.39.1.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Setup Prometheus
+  ansible.builtin.shell: 
+    cmd: /tmp/setup.sh
+    chdir: /tmp
+
+- name: Setup service
+  ansible.builtin.copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/prometheus.service
+  notify: Reload systemctl
+
+- name: Copy Prometheus config
+  ansible.builtin.copy:
+    src: prometheus.yml
+    dest: /etc/prometheus/prometheus.yml
+    owner: prometheus
+    group: prometheus
+  notify: Restart Prometheus
+
+- name: Start prometheus
+  ansible.builtin.service:
+    name: prometheus
+    state: started
+    enabled: yes
+
+- name: Install Grafana
+  ansible.builtin.yum:
+    name: 'https://dl.grafana.com/oss/release/grafana-9.2.2-1.x86_64.rpm'
+    state: present
+
+- name: Start Grafana
+  ansible.builtin.service:
+    name: grafana-server
+    state: started
+    enabled: yes
+
+- name: Configuring firewall
+  include_tasks: firewall.yml

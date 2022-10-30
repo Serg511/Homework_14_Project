@@ -1,0 +1,108 @@
+- name: Install Firewalld
+  yum: 
+    name: firewalld 
+    state: present
+
+- name: Firewalld service state
+  systemd: 
+    name: firewalld 
+    state: restarted 
+    enabled: yes
+
+- name: Firewalld add iscsi-limited zone
+  firewalld:
+    zone: iscsi-limited
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: copy service iscsi
+  copy:
+    src: iscsi.xml
+    dest: /tmp/iscsi.xml
+
+- name: Add service from file
+  shell: firewall-cmd --permanent --new-service-from-file=/tmp/iscsi.xml
+
+- name: Firewalld add trusted ip to iscsi-limited zone
+  firewalld:
+    source: "{{ hostvars[ groups['web_servers'][0] ].internal_ip }}"
+    zone: iscsi-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Firewalld add trusted ip to iscsi-limited zone
+  firewalld:
+    source: "{{ hostvars[ groups['web_servers'][1] ].internal_ip }}"
+    zone: iscsi-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: Firewalld add trusted ip to iscsi-limited zone
+  firewalld:
+    source: "{{ hostvars[ groups['web_servers'][2] ].internal_ip }}"
+    zone: iscsi-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: firewalld activate iscsi service
+  firewalld:
+    service: iscsi
+    zone: iscsi-limited
+    permanent: true
+    state: enabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld deactivate dhcpv6-client service
+  firewalld:
+    service: dhcpv6-client
+    permanent: true
+    state: disabled
+
+- name: Firewalld add ssh-limited zone
+  firewalld:
+    zone: ssh-limited
+    state: present
+    permanent: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+
+- name: Firewalld add trusted ip to ssh-limited zone
+  firewalld:
+    source: "{{ ip }}"
+    zone: ssh-limited
+    state: enabled
+    permanent: true
+    immediate: true
+
+- name: firewalld activate ssh service
+  firewalld:
+    service: ssh
+    zone: ssh-limited
+    permanent: true
+    state: enabled
+
+- name: Firewalld deactivate ssh service
+  firewalld:
+    service: ssh
+    permanent: true
+    state: disabled
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
